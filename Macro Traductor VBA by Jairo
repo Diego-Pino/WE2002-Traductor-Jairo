@@ -1,0 +1,850 @@
+Macro Traductor VBA EXCEL by Jairo
+
+
+Dim arrByte() As Byte
+Public HojaOff As String
+Public Archivo As Boolean
+
+Private Sub cmdAbrir_Click()
+Dim mfilesize As Long
+On Error GoTo HayError
+Me.cmdlgDialogo1.Filename = ""
+Me.cmdlgDialogo1.Flags = cdlOFNFileMustExist
+Me.cmdlgDialogo1.ShowOpen
+If Me.cmdlgDialogo1.Filename = "" Then
+    Exit Sub
+Else
+    mhandle = FreeFile
+    Open Me.cmdlgDialogo1.Filename For Binary As #mhandle
+    mfilesize = LOF(mhandle)
+    Close mhandle
+    If mfilesize = 474431328 Then
+        Me.txtArchivo.Text = Me.cmdlgDialogo1.Filename
+        Me.lblTamano.Caption = Format(mfilesize, "#0,00") & " Bytes"
+        'Habilita los comandos
+        Me.frTraducir.Enabled = True
+        Me.opFilas.Enabled = True
+        Me.opTodo.Enabled = True
+        Me.lblFinicio.Enabled = True
+        Me.lblFfin.Enabled = True
+        Me.txtFinicio.Enabled = True
+        Me.txtFfin.Enabled = True
+        Me.cmdTraducir.Enabled = True
+    Else
+        Me.cmdlgDialogo1.Filename = ""
+        MsgBox "El tamaÒo de la imagen del archivo no corresponde al de la imagen de WE2002." & vbCrLf & vbCrLf & "TamaÒo correcto: 474,431,328 Bytes" & vbCrLf & "TamaÒo archivo: " & Format(mfilesize, "#0,00") & " Bytes" & vbCrLf & vbCrLf & "No se puede ejecutar el programa!", vbCritical + vbOKOnly, "Error en tamaÒo de archivo..."
+    End If
+End If
+HayError:
+Exit Sub
+End Sub
+
+Private Sub cmdLeer_Click()
+Dim textotmp As String
+'Lee los datos del Archivo .bin de la fila especificada
+mhandle = FreeFile
+Open Me.cmdlgDialogo1.Filename For Binary As #mhandle
+ReDim arrByte(11)
+Get #mhandle, CLng(Me.txtOffset.Text), arrByte
+For i = 1 To 11
+    textotmp = textotmp & Me.Normal_Hexa2Texto(Me.GetByteHex(CLng(i)))
+Next i
+Me.txtTexto.Text = textotmp
+'Cierra el archivo
+Close mhandle
+End Sub
+Function GetByteHex(offset As Long) As String
+    Dim mHex As String
+    mHex = Hex$(arrByte(offset))
+    If Len(mHex) = 1 Then
+        mHex = "0" & mHex
+    End If
+    GetByteHex = mHex
+End Function
+Sub UpdateByte(offset, TextoHexa As String)
+    arrByte(offset) = CByte("&h" & TextoHexa)
+End Sub
+
+Function Normal_Hexa2Texto(valor As String) As String
+Select Case valor
+    'Numeros
+    Case "20"
+        Normal_Hexa2Texto = " "
+    Case "30"
+        Normal_Hexa2Texto = "0"
+    Case "31"
+        Normal_Hexa2Texto = "1"
+    Case "32"
+        Normal_Hexa2Texto = "2"
+    Case "33"
+        Normal_Hexa2Texto = "3"
+    Case "34"
+        Normal_Hexa2Texto = "4"
+    Case "35"
+        Normal_Hexa2Texto = "5"
+    Case "36"
+        Normal_Hexa2Texto = "6"
+    Case "37"
+        Normal_Hexa2Texto = "7"
+    Case "38"
+        Normal_Hexa2Texto = "8"
+    Case "39"
+        Normal_Hexa2Texto = "9"
+    'MAYUSCULAS
+    Case "41"
+        Normal_Hexa2Texto = "A"
+    Case "42"
+        Normal_Hexa2Texto = "B"
+    Case "43"
+        Normal_Hexa2Texto = "C"
+    Case "44"
+        Normal_Hexa2Texto = "D"
+    Case "45"
+        Normal_Hexa2Texto = "E"
+    Case "46"
+        Normal_Hexa2Texto = "F"
+    Case "47"
+        Normal_Hexa2Texto = "G"
+    Case "48"
+        Normal_Hexa2Texto = "H"
+    Case "49"
+        Normal_Hexa2Texto = "I"
+    Case "4A", "4a"
+        Normal_Hexa2Texto = "J"
+    Case "4B", "4b"
+        Normal_Hexa2Texto = "K"
+    Case "4C", "4c"
+        Normal_Hexa2Texto = "L"
+    Case "4D", "4d"
+        Normal_Hexa2Texto = "M"
+    Case "4E", "4e"
+        Normal_Hexa2Texto = "N"
+    Case "4F", "4f"
+        Normal_Hexa2Texto = "O"
+    Case "50"
+        Normal_Hexa2Texto = "P"
+    Case "51"
+        Normal_Hexa2Texto = "Q"
+    Case "52"
+        Normal_Hexa2Texto = "R"
+    Case "53"
+        Normal_Hexa2Texto = "S"
+    Case "54"
+        Normal_Hexa2Texto = "T"
+    Case "55"
+        Normal_Hexa2Texto = "U"
+    Case "56"
+        Normal_Hexa2Texto = "V"
+    Case "57"
+        Normal_Hexa2Texto = "W"
+    Case "58"
+        Normal_Hexa2Texto = "X"
+    Case "59"
+        Normal_Hexa2Texto = "Y"
+    Case "5A", "5a"
+        Normal_Hexa2Texto = "Z"
+    'Minusculas
+    Case "61"
+        Normal_Hexa2Texto = "a"
+    Case "62"
+        Normal_Hexa2Texto = "b"
+    Case "63"
+        Normal_Hexa2Texto = "c"
+    Case "64"
+        Normal_Hexa2Texto = "d"
+    Case "65"
+        Normal_Hexa2Texto = "e"
+    Case "66"
+        Normal_Hexa2Texto = "f"
+    Case "67"
+        Normal_Hexa2Texto = "g"
+    Case "68"
+        Normal_Hexa2Texto = "h"
+    Case "69"
+        Normal_Hexa2Texto = "i"
+    Case "6A", "6a"
+        Normal_Hexa2Texto = "j"
+    Case "6B", "6b"
+        Normal_Hexa2Texto = "k"
+    Case "6C", "6c"
+        Normal_Hexa2Texto = "l"
+    Case "6D", "6d"
+        Normal_Hexa2Texto = "m"
+    Case "6E", "6e"
+        Normal_Hexa2Texto = "n"
+    Case "6F", "6f"
+        Normal_Hexa2Texto = "o"
+    Case "70"
+        Normal_Hexa2Texto = "p"
+    Case "71"
+        Normal_Hexa2Texto = "q"
+    Case "72"
+        Normal_Hexa2Texto = "r"
+    Case "73"
+        Normal_Hexa2Texto = "s"
+    Case "74"
+        Normal_Hexa2Texto = "t"
+    Case "75"
+        Normal_Hexa2Texto = "u"
+    Case "76"
+        Normal_Hexa2Texto = "v"
+    Case "77"
+        Normal_Hexa2Texto = "w"
+    Case "78"
+        Normal_Hexa2Texto = "x"
+    Case "79"
+        Normal_Hexa2Texto = "y"
+    Case "7A", "7a"
+        Normal_Hexa2Texto = "z"
+    'Caracteres especiales
+    Case "5B", "5b"
+        Normal_Hexa2Texto = "["
+    Case "5C", "5c"
+        Normal_Hexa2Texto = "\"
+    Case "5D", "5d"
+        Normal_Hexa2Texto = "]"
+    Case "5E", "5e"
+        Normal_Hexa2Texto = "^"
+    Case "5F", "5f"
+        Normal_Hexa2Texto = "_"
+    Case "60"
+        Normal_Hexa2Texto = "`"
+    Case "3A", "3a"
+        Normal_Hexa2Texto = ":"
+    Case "3B", "3b"
+        Normal_Hexa2Texto = ";"
+    Case "3C", "3c"
+        Normal_Hexa2Texto = "<"
+    Case "3D", "3d"
+        Normal_Hexa2Texto = "="
+    Case "3E", "3e"
+        Normal_Hexa2Texto = ">"
+    Case "3F", "3f"
+        Normal_Hexa2Texto = "?"
+    Case "40"
+        Normal_Hexa2Texto = "@"
+    Case "21"
+        Normal_Hexa2Texto = "!"
+    Case "22"
+        Normal_Hexa2Texto = """"
+    Case "23"
+        Normal_Hexa2Texto = "#"
+    Case "24"
+        Normal_Hexa2Texto = "$"
+    Case "25"
+        Normal_Hexa2Texto = "%"
+    Case "26"
+        Normal_Hexa2Texto = "&"
+    Case "27"
+        Normal_Hexa2Texto = "'"
+    Case "28"
+        Normal_Hexa2Texto = "("
+    Case "29"
+        Normal_Hexa2Texto = ")"
+    Case "2A", "2a"
+        Normal_Hexa2Texto = "*"
+    Case "2B", "2b"
+        Normal_Hexa2Texto = "+"
+    Case "2C", "2c"
+        Normal_Hexa2Texto = ","
+    Case "2D", "2d"
+        Normal_Hexa2Texto = "-"
+    Case "2E", "2e"
+        Normal_Hexa2Texto = "."
+    Case "2F", "2f"
+        Normal_Hexa2Texto = "/"
+    Case "7E", "7e"
+        Normal_Hexa2Texto = "~"
+    Case Else
+        Normal_Hexa2Texto = ""
+End Select
+End Function
+
+Function Normal_Texto2Hexa(valor As String) As String
+'Valores de la tabla
+Select Case valor
+    'Numeros
+    Case " "
+        Normal_Texto2Hexa = "20"
+    Case "0"
+        Normal_Texto2Hexa = "30"
+    Case "1"
+        Normal_Texto2Hexa = "31"
+    Case "2"
+        Normal_Texto2Hexa = "32"
+    Case "3"
+        Normal_Texto2Hexa = "33"
+    Case "4"
+        Normal_Texto2Hexa = "34"
+    Case "5"
+        Normal_Texto2Hexa = "35"
+    Case "6"
+        Normal_Texto2Hexa = "36"
+    Case "7"
+        Normal_Texto2Hexa = "37"
+    Case "8"
+        Normal_Texto2Hexa = "38"
+    Case "9"
+        Normal_Texto2Hexa = "39"
+    'MAYUSCULAS
+    Case "A"
+        Normal_Texto2Hexa = "41"
+    Case "B"
+        Normal_Texto2Hexa = "42"
+    Case "C"
+        Normal_Texto2Hexa = "43"
+    Case "D"
+        Normal_Texto2Hexa = "44"
+    Case "E"
+        Normal_Texto2Hexa = "45"
+    Case "F"
+        Normal_Texto2Hexa = "46"
+    Case "G"
+        Normal_Texto2Hexa = "47"
+    Case "H"
+        Normal_Texto2Hexa = "48"
+    Case "I"
+        Normal_Texto2Hexa = "49"
+    Case "J"
+        Normal_Texto2Hexa = "4A"
+    Case "K"
+        Normal_Texto2Hexa = "4B"
+    Case "L"
+        Normal_Texto2Hexa = "4C"
+    Case "M"
+        Normal_Texto2Hexa = "4D"
+    Case "N"
+        Normal_Texto2Hexa = "4E"
+    Case "O"
+        Normal_Texto2Hexa = "4F"
+    Case "P"
+        Normal_Texto2Hexa = "50"
+    Case "Q"
+        Normal_Texto2Hexa = "51"
+    Case "R"
+        Normal_Texto2Hexa = "52"
+    Case "S"
+        Normal_Texto2Hexa = "53"
+    Case "T"
+        Normal_Texto2Hexa = "54"
+    Case "U"
+        Normal_Texto2Hexa = "55"
+    Case "V"
+        Normal_Texto2Hexa = "56"
+    Case "W"
+        Normal_Texto2Hexa = "57"
+    Case "X"
+        Normal_Texto2Hexa = "58"
+    Case "Y"
+        Normal_Texto2Hexa = "59"
+    Case "Z"
+        Normal_Texto2Hexa = "5A"
+    'Minusculas
+    Case "a"
+        Normal_Texto2Hexa = "61"
+    Case "b"
+        Normal_Texto2Hexa = "62"
+    Case "c"
+        Normal_Texto2Hexa = "63"
+    Case "d"
+        Normal_Texto2Hexa = "64"
+    Case "e"
+        Normal_Texto2Hexa = "65"
+    Case "f"
+        Normal_Texto2Hexa = "66"
+    Case "g"
+        Normal_Texto2Hexa = "67"
+    Case "h"
+        Normal_Texto2Hexa = "68"
+    Case "i"
+        Normal_Texto2Hexa = "69"
+    Case "j"
+        Normal_Texto2Hexa = "6A"
+    Case "k"
+        Normal_Texto2Hexa = "6B"
+    Case "l"
+        Normal_Texto2Hexa = "6C"
+    Case "m"
+        Normal_Texto2Hexa = "6D"
+    Case "n"
+        Normal_Texto2Hexa = "6E"
+    Case "o"
+        Normal_Texto2Hexa = "6F"
+    Case "p"
+        Normal_Texto2Hexa = "70"
+    Case "q"
+        Normal_Texto2Hexa = "71"
+    Case "r"
+        Normal_Texto2Hexa = "72"
+    Case "s"
+        Normal_Texto2Hexa = "73"
+    Case "t"
+        Normal_Texto2Hexa = "74"
+    Case "u"
+        Normal_Texto2Hexa = "75"
+    Case "v"
+        Normal_Texto2Hexa = "76"
+    Case "w"
+        Normal_Texto2Hexa = "77"
+    Case "x"
+        Normal_Texto2Hexa = "78"
+    Case "y"
+        Normal_Texto2Hexa = "79"
+    Case "z"
+        Normal_Texto2Hexa = "7A"
+    'Caracteres Especiales
+    Case "!"
+        Normal_Texto2Hexa = "21"
+    Case """"
+        Normal_Texto2Hexa = "22"
+    Case "#"
+        Normal_Texto2Hexa = "23"
+    Case "$"
+        Normal_Texto2Hexa = "24"
+    Case "%"
+        Normal_Texto2Hexa = "25"
+    Case "&"
+        Normal_Texto2Hexa = "26"
+    Case "'"
+        Normal_Texto2Hexa = "27"
+    Case "("
+        Normal_Texto2Hexa = "28"
+    Case ")"
+        Normal_Texto2Hexa = "29"
+    Case "*"
+        Normal_Texto2Hexa = "2A"
+    Case "+"
+        Normal_Texto2Hexa = "2B"
+    Case ","
+        Normal_Texto2Hexa = "2C"
+    Case "-"
+        Normal_Texto2Hexa = "2D"
+    Case "."
+        Normal_Texto2Hexa = "2E"
+    Case "/"
+        Normal_Texto2Hexa = "2F"
+    Case "["
+        Normal_Texto2Hexa = "5B"
+    Case "\"
+        Normal_Texto2Hexa = "5C"
+    Case "]"
+        Normal_Texto2Hexa = "5D"
+    Case "^"
+        Normal_Texto2Hexa = "5E"
+    Case "_"
+        Normal_Texto2Hexa = "5F"
+    Case "`"
+        Normal_Texto2Hexa = "60"
+    Case ":"
+        Normal_Texto2Hexa = "3A"
+    Case ";"
+        Normal_Texto2Hexa = "3B"
+    Case "<"
+        Normal_Texto2Hexa = "3C"
+    Case "="
+        Normal_Texto2Hexa = "3D"
+    Case ">"
+        Normal_Texto2Hexa = "3E"
+    Case "?"
+        Normal_Texto2Hexa = "3F"
+    Case "@"
+        Normal_Texto2Hexa = "40"
+    Case "~"
+        Normal_Texto2Hexa = "7E"
+    Case Else
+        Normal_Texto2Hexa = ""
+End Select
+End Function
+
+Function Codificado_Texto2Hexa(valor As String) As String
+'Valores de la Tabla
+Select Case valor
+    'MAYUSCULAS
+    Case "A"
+        Codificado_Texto2Hexa = "8260"
+    Case "B"
+        Codificado_Texto2Hexa = "8261"
+    Case "C"
+        Codificado_Texto2Hexa = "8262"
+    Case "D"
+        Codificado_Texto2Hexa = "8263"
+    Case "E"
+        Codificado_Texto2Hexa = "8264"
+    Case "F"
+        Codificado_Texto2Hexa = "8265"
+    Case "G"
+        Codificado_Texto2Hexa = "8266"
+    Case "H"
+        Codificado_Texto2Hexa = "8267"
+    Case "I"
+        Codificado_Texto2Hexa = "8268"
+    Case "J"
+        Codificado_Texto2Hexa = "8269"
+    Case "K"
+        Codificado_Texto2Hexa = "826A"
+    Case "L"
+        Codificado_Texto2Hexa = "826B"
+    Case "M"
+        Codificado_Texto2Hexa = "826C"
+    Case "N"
+        Codificado_Texto2Hexa = "826D"
+    Case "O"
+        Codificado_Texto2Hexa = "826E"
+    Case "P"
+        Codificado_Texto2Hexa = "826F"
+    Case "Q"
+        Codificado_Texto2Hexa = "8270"
+    Case "R"
+        Codificado_Texto2Hexa = "8271"
+    Case "S"
+        Codificado_Texto2Hexa = "8272"
+    Case "T"
+        Codificado_Texto2Hexa = "8273"
+    Case "U"
+        Codificado_Texto2Hexa = "8274"
+    Case "V"
+        Codificado_Texto2Hexa = "8275"
+    Case "W"
+        Codificado_Texto2Hexa = "8276"
+    Case "X"
+        Codificado_Texto2Hexa = "8277"
+    Case "Y"
+        Codificado_Texto2Hexa = "8278"
+    Case "Z"
+        Codificado_Texto2Hexa = "8279"
+    Case " "
+        Codificado_Texto2Hexa = "8280"
+        'Minusculas
+    Case "a"
+        Codificado_Texto2Hexa = "8281"
+    Case "b"
+        Codificado_Texto2Hexa = "8282"
+    Case "c"
+        Codificado_Texto2Hexa = "8283"
+    Case "d"
+        Codificado_Texto2Hexa = "8284"
+    Case "e"
+        Codificado_Texto2Hexa = "8285"
+    Case "f"
+        Codificado_Texto2Hexa = "8286"
+    Case "g"
+        Codificado_Texto2Hexa = "8287"
+    Case "h"
+        Codificado_Texto2Hexa = "8288"
+    Case "i"
+        Codificado_Texto2Hexa = "8289"
+    Case "j"
+        Codificado_Texto2Hexa = "828A"
+    Case "k"
+        Codificado_Texto2Hexa = "828B"
+    Case "l"
+        Codificado_Texto2Hexa = "828C"
+    Case "m"
+        Codificado_Texto2Hexa = "828D"
+    Case "n"
+        Codificado_Texto2Hexa = "828E"
+    Case "o"
+        Codificado_Texto2Hexa = "828F"
+    Case "p"
+        Codificado_Texto2Hexa = "8290"
+    Case "q"
+        Codificado_Texto2Hexa = "8291"
+    Case "r"
+        Codificado_Texto2Hexa = "8292"
+    Case "s"
+        Codificado_Texto2Hexa = "8293"
+    Case "t"
+        Codificado_Texto2Hexa = "8294"
+    Case "u"
+        Codificado_Texto2Hexa = "8295"
+    Case "v"
+        Codificado_Texto2Hexa = "8296"
+    Case "w"
+        Codificado_Texto2Hexa = "8297"
+    Case "x"
+        Codificado_Texto2Hexa = "8298"
+    Case "y"
+        Codificado_Texto2Hexa = "8299"
+    Case "z"
+        Codificado_Texto2Hexa = "829A"
+    'Numeros
+    Case "0"
+        Codificado_Texto2Hexa = "824F"
+    Case "1"
+        Codificado_Texto2Hexa = "8250"
+    Case "2"
+        Codificado_Texto2Hexa = "8251"
+    Case "3"
+        Codificado_Texto2Hexa = "8252"
+    Case "4"
+        Codificado_Texto2Hexa = "8253"
+    Case "5"
+        Codificado_Texto2Hexa = "8254"
+    Case "6"
+        Codificado_Texto2Hexa = "8255"
+    Case "7"
+        Codificado_Texto2Hexa = "8256"
+    Case "8"
+        Codificado_Texto2Hexa = "8257"
+    Case "9"
+        Codificado_Texto2Hexa = "8258"
+    'Caracteres especiales
+    Case "!"
+        Codificado_Texto2Hexa = "8149"
+    Case """"
+        Codificado_Texto2Hexa = "8168"
+    Case "#"
+        Codificado_Texto2Hexa = "8194"
+    Case "$"
+        Codificado_Texto2Hexa = "8190"
+    Case "%"
+        Codificado_Texto2Hexa = "8193"
+    Case "&"
+        Codificado_Texto2Hexa = "8195"
+    Case "'"
+        Codificado_Texto2Hexa = "8166"
+    Case "("
+        Codificado_Texto2Hexa = "8169"
+    Case ")"
+        Codificado_Texto2Hexa = "816A"
+    Case "*"
+        Codificado_Texto2Hexa = "8196"
+    Case "+"
+        Codificado_Texto2Hexa = "817B"
+    Case ","
+        Codificado_Texto2Hexa = "8143"
+    Case "-"
+        Codificado_Texto2Hexa = "817C"
+    Case "."    'Punto normal enves de punto japones
+        Codificado_Texto2Hexa = "8144"
+    Case "/"
+        Codificado_Texto2Hexa = "815E"
+    Case "["
+        Codificado_Texto2Hexa = "816D"
+    Case "\"
+        Codificado_Texto2Hexa = "815F"
+    Case "]"
+        Codificado_Texto2Hexa = "816E"
+    Case "^"
+        Codificado_Texto2Hexa = "814F"
+    Case "_"
+        Codificado_Texto2Hexa = "8151"
+    Case "`"
+        Codificado_Texto2Hexa = "814D"
+    Case ":"
+        Codificado_Texto2Hexa = "8146"
+    Case ";"
+        Codificado_Texto2Hexa = "8147"
+    Case "<"
+        Codificado_Texto2Hexa = "8183"
+    Case "="
+        Codificado_Texto2Hexa = "8181"
+    Case ">"
+        Codificado_Texto2Hexa = "8184"
+    Case "?"
+        Codificado_Texto2Hexa = "8148"
+    Case "@"
+        Codificado_Texto2Hexa = "8197"
+    Case "~"
+        Codificado_Texto2Hexa = "8160"
+    'Caracteres del Control
+    'Boton Triangulo
+    Case "¡"
+        Codificado_Texto2Hexa = "81A3"
+    'Boton Equis
+    Case "…"
+        Codificado_Texto2Hexa = "819A"
+    'Boton Circulo
+    Case "”"
+        Codificado_Texto2Hexa = "819C"
+    'Boton Cuadrado
+    Case "«"
+        Codificado_Texto2Hexa = "81A1"
+    'Caracterer no encontrado
+    Case Else
+        Codificado_Texto2Hexa = ""
+End Select
+End Function
+
+Private Sub cmdTraducir_Click()
+Dim offset As Long, largo As Integer, largotexto As Integer, textotmp As String, hexatmp As String, filas As Boolean
+filas = False
+'Evalua las filas
+If Me.opFilas.Value = True Then
+    finicio = Val(Me.txtFinicio.Text)
+    ffin = Val(Me.txtFfin.Text)
+    If IsNumeric(finicio) And IsNumeric(ffin) And Val(finicio) >= 2 And (finicio <= ffin) Then
+        filas = True
+    Else
+        filas = False
+        MsgBox "Los valores del rango son incorrectos!", vbCritical + vbOKOnly, "Error en datos del rango..."
+        Exit Sub
+    End If
+Else
+'Toda la base de datos
+    If MsgBox("Esta seguro de traducir TODA la base de datos actual?", vbQuestion + vbYesNo, "Traductor WE2002") = vbYes Then
+        k = 2
+        finicio = 2
+        While Sheets(HojaOff).Cells(k, 1).Value <> ""
+            k = k + 1
+        Wend
+        ffin = k - 1
+    Else
+        Exit Sub
+    End If
+End If
+Open Me.cmdlgDialogo1.Filename For Binary Access Write As #1
+'Traduce el texto
+For i = finicio To ffin
+    If Me.EvaluaDatos(i) = True Then
+        offset = CLng(Sheets(HojaOff).Cells(i, 1).Value)
+        codificado = Val(Sheets(HojaOff).Cells(i, 2).Value)
+        tipofin = Val(Sheets(HojaOff).Cells(i, 3).Value)
+        largo = Val(Sheets(HojaOff).Cells(i, 4).Value)
+        largotexto = Val(Sheets(HojaOff).Cells(i, 7).Value)
+        textotmp = Sheets(HojaOff).Cells(i, 6).Value
+        hexatmp = ""
+        Select Case codificado
+            Case 0  'Normal
+                If tipofin = 0 Or tipofin = 1 Then
+                    ReDim arrByte(1 To largo)
+                    fin = largo
+                ElseIf tipofin = 2 Then
+                    ReDim arrByte(1 To largo + 1)
+                    fin = largo + 1
+                End If
+                For j = 1 To fin
+                    If j <= largotexto Then
+                        Me.UpdateByte j, Me.Normal_Texto2Hexa(Mid(textotmp, j, 1))
+                    Else
+                        Select Case tipofin
+                            Case 0
+                                Me.UpdateByte j, "00"
+                            Case 1
+                                Me.UpdateByte j, Me.Normal_Texto2Hexa(" ")
+                            Case 2
+                                Me.UpdateByte j, "0A"
+                        End Select
+                    End If
+                Next j
+            Case 1  'Codificado
+                If tipofin = 0 Or tipofin = 1 Then
+                    ReDim arrByte(1 To largo * 2)
+                    fin = largo * 2
+                ElseIf tipofin = 2 Then
+                    ReDim arrByte(1 To largo * 2 + 1)
+                    fin = largo * 2 + 1
+                End If
+                For j = 1 To fin
+                    If j <= largotexto Then
+                        hexatmp = hexatmp & Me.Codificado_Texto2Hexa(Mid(textotmp, j, 1))
+                    Else
+                        Select Case tipofin
+                            Case 0
+                                hexatmp = hexatmp & "0000"
+                            Case 1
+                                hexatmp = hexatmp & Me.Codificado_Texto2Hexa(" ")
+                            Case 2
+                                hexatmp = hexatmp & "0A"
+                        End Select
+                    End If
+                Next j
+                'Actualiza el valor del offset
+                For j = 1 To fin
+                    Me.UpdateByte j, Mid(hexatmp, j * 2 - 1, 2)
+                Next j
+        End Select
+        'Escribe el dato en la imagen
+        Put #1, offset + 1, arrByte()
+    Else 'Datos erroneo
+        MsgBox "La fila N∞: " & i & vbCrLf & "contiene informaciÛn no valida!." & vbCrLf & "Revise todos los datos de la fila antes de ejecutar el programa", vbCritical + vbOKOnly, "Error en fila de datos..."
+    End If
+Next i
+Close #1
+MsgBox "El proceso de traducciÛn ha sido finalizado.", vbExclamation, "Traductor WE2002"
+End Sub
+
+Private Sub opFilas_Click()
+If Me.opFilas.Value = True Then
+    'Habilita los valores fe Finicio y ffin
+    Me.lblFinicio.Enabled = True
+    Me.lblFfin.Enabled = True
+    Me.txtFfin.Enabled = True
+    Me.txtFinicio.Enabled = True
+End If
+End Sub
+
+Private Sub opTodo_Click()
+If Me.opTodo.Value = True Then
+    'Deshabilita los valores fe Finicio y ffin
+    Me.lblFinicio.Enabled = False
+    Me.lblFfin.Enabled = False
+    Me.txtFfin.Enabled = False
+    Me.txtFinicio.Enabled = False
+    'habilita traducir si hay un archivo v·lido
+    If Archivo = True Then
+        Me.cmdTraducir.Enabled = True
+    End If
+End If
+End Sub
+
+Private Sub UserForm_Initialize()
+'Inicia los valores por defecto
+HojaOff = "Offsets 2002"
+'Selecciona la hoja
+Sheets(HojaOff).Select
+'Por defecto no hay nungun archivo abierto
+Archivo = False
+End Sub
+
+Private Sub cmdSalir_Click()
+Unload Me
+End Sub
+
+Function EvaluaDatos(fila) As Boolean
+'Funcion que evalua los datos a traducir
+Dim datos As Boolean
+'Por defecto se supone que los datos estan bien
+datos = True
+'Primero evalua que los datos este llenos
+For col = 1 To 7
+    If col <> 5 Then
+        If Sheets(HojaOff).Cells(fila, col).Value = "" Then
+            EvaluaDatos = False
+            Exit Function
+        End If
+    End If
+Next col
+'Offset
+If Val(Sheets(HojaOff).Cells(fila, 1).Value) < 0 Or Val(Sheets(HojaOff).Cells(fila, 1).Value) > 474431328 Then
+    EvaluaDatos = False
+    Exit Function
+End If
+'Tipo de codificaciÛn
+If Sheets(HojaOff).Cells(fila, 2).Value <> 0 And Sheets(HojaOff).Cells(fila, 2).Value <> 1 Then
+    EvaluaDatos = False
+    Exit Function
+End If
+'Fin de texto
+If Sheets(HojaOff).Cells(fila, 3).Value <> 0 And Sheets(HojaOff).Cells(fila, 3).Value <> 1 And Sheets(HojaOff).Cells(fila, 3).Value <> 2 Then
+    EvaluaDatos = False
+    Exit Function
+End If
+'TamaÒo de texto
+If Sheets(HojaOff).Cells(fila, 4).Value <= 0 Then
+    EvaluaDatos = False
+    Exit Function
+End If
+'TamaÒo de texto
+If Len(Sheets(HojaOff).Cells(fila, 6).Value) = 0 Then
+    EvaluaDatos = False
+    Exit Function
+End If
+'Longitud de la variable
+If Val(Sheets(HojaOff).Cells(fila, 7).Value) > Val(Sheets(HojaOff).Cells(fila, 4).Value) Then
+    EvaluaDatos = False
+    Exit Function
+End If
+'Si llega hasta aqui todos los datos estan bien
+EvaluaDatos = True
+End Function
